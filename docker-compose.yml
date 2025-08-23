@@ -1,0 +1,32 @@
+services:
+  database:
+    image: mysql:8.0
+    container_name: mysql
+    env_file:
+      - ./docker/local/mysql.env
+    ports:
+      - "3306:3306/tcp"
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin","ping","-h","localhost"]
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    env_file:
+      - ./docker/local/api.env
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  mysqldata:
+
