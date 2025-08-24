@@ -28,17 +28,15 @@ class HeathCheck(BaseModel):
 
 
 class PersonResponse(BaseModel):
-    name: str
     id: str
 
 
 class Person(BaseModel):
-    id: str
     name: str
     cpf: str
     civil_state: str
-    created_time: datetime
-    modified_time: datetime
+    created_time: datetime = datetime.now()
+    modified_time: datetime = datetime.now()
     birth_date: date
 
 
@@ -71,7 +69,7 @@ class OrderBy(str, Enum):
 
 @app.get("/persons")
 def list_persons(
-    cpf: Annotated[str, Path(max_length=11)] = None,
+    cpf: Annotated[str | None, Query(max_length=11)] = None,
     civil_state: Annotated[str | None, Query()] = None,
     name: Annotated[str | None, Query()] = None,
     page: Annotated[int | None, Query(ge=1)] = 1,
@@ -107,7 +105,7 @@ def upsert_person(person_model: Person) -> PersonResponse:
     engine = create_db_engine()
     with engine.connect() as connection:
         response = controllers.upsert_person(person_model, connection)
-    return PersonResponse(name=response.name, id=response.id)
+    return PersonResponse(id=response.id)
 
 
 @app.get("/")

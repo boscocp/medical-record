@@ -52,17 +52,15 @@ def list_persons(request: ListPersonsRequest, connection: Connection) -> ListPer
 @dataclass
 class UpsertPersonResponse:
     id: str
-    name: str
 
 
 def upsert_person(person_model, connection) -> UpsertPersonResponse:
     repository = PersonRepository(connection)
-    # Converte o modelo Pydantic para dict, se necessário
+
     if hasattr(person_model, "dict"):
         person_dict = person_model.dict()
     else:
         person_dict = dict(person_model)
-    repository.upsert_person(person_dict)
-    # Após o upsert, busca o registro atualizado/inserido
-    person = repository.find_by_id(person_dict["id"])
-    return UpsertPersonResponse(id=person["id"], name=person["name"])
+    id = repository.upsert_person(person_dict)
+
+    return UpsertPersonResponse(id=id)

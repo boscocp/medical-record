@@ -20,7 +20,8 @@ UPDATE_COLUMNS = (
     "name",
     "cpf",
     "birth_date",
-    "civil_state"
+    "civil_state",
+    "modified_time",
 )
 
 
@@ -79,7 +80,13 @@ class PersonRepository:
             conditions.append(f"{key} =: {key}")
         return " AND ".join(conditions)
 
-    def upsert_person(self, person_model):
+    def upsert_person(self, person_model) -> str:
+        now = datetime.now()
+
+        if not person_model.get("created_time"):
+            person_model["created_time"] = now
+        person_model["modified_time"] = now
+
         insert_stmt = insert(persons).values(**person_model)
         update_model = {}
         for key in UPDATE_COLUMNS:
@@ -88,5 +95,5 @@ class PersonRepository:
         upsert_stmt = insert_stmt.on_duplicate_key_update(**update_model)
 
         result = self._connection.execute(upsert_stmt)
-        # self._connection.commit()
-        return result  # Retorna o modelo inserido
+        self._connection.commit()
+        return result.inserted_primary_key[0]

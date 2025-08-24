@@ -42,14 +42,14 @@ persons = Table(
     'person',
     metadata,
     Column('id', String(36), primary_key=True,
-           default=lambda: str(uuid.uuid4)),
+           default=lambda: str(uuid.uuid4())),
     Column('name', String(200), nullable=False),
     Column('cpf', String(14), nullable=False, unique=True),
     Column('birth_date', Date, nullable=False),
     Column('civil_state', Enum(*MARITAL_STATUS_CHOICES,
            name='marital_status'), nullable=False, default='S'),
     Column('created_time', TIMESTAMP(), nullable=False),
-    Column('modified_time', DateTime, nullable=False),
+    Column('modified_time', TIMESTAMP(), nullable=False),
     UniqueConstraint('cpf', name='uq_person_cpf')
 )
 

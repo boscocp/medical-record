@@ -18,3 +18,8 @@ Create table:
 
 execute migrations:
 `alembic upgrade head`
+
+connect database:
+mysql -u localadmin -p -h 127.0.0.1 -P 3306 medical_record
+
+SELECT \* FROM person LIMIT 10;
