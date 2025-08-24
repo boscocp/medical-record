@@ -70,21 +70,23 @@ class OrderBy(str, Enum):
 @app.get("/persons")
 def list_persons(
     cpf: Annotated[str | None, Query(max_length=11)] = None,
-    civil_state: Annotated[str | None, Query()] = None,
     name: Annotated[str | None, Query()] = None,
+    civil_state: Annotated[str | None, Query()] = None,
     page: Annotated[int | None, Query(ge=1)] = 1,
     page_size: Annotated[int | None, Query(le=10)] = 10,
     order_by: Annotated[OrderBy | None, Query()] = OrderBy.created_time,
     descending: Annotated[bool, Query()] = True,
+    birth_date: Annotated[date | None, Query()] = None,
 ) -> PaginatedPersons:
     request = controllers.ListPersonsRequest(
-        cpf,
-        civil_state,
-        name,
-        page,
-        page_size,
-        order_by,
-        descending,
+        birth_date=birth_date,
+        cpf=cpf,
+        name=name,
+        civil_state=civil_state,
+        page=page,
+        page_size=page_size,
+        order_by=order_by,
+        descending=descending,
     )
     engine = create_db_engine()
     with engine.connect() as connection:

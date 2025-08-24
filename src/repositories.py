@@ -44,9 +44,16 @@ class PersonRepository:
         return record._asdict()
 
     def count_by(self, criteria: dict[str, str | int | None]) -> int:
-        str_where = self._build_conditions_str(criteria)
-        stmt = select(func.count()).select_from(persons).where(text(str_where))
-        result = self._connection.execute(stmt, criteria)
+        conditions = [
+            getattr(persons.c, key) == value
+            for key, value in criteria.items()
+            if value is not None
+        ]
+        stmt = select(func.count()).select_from(persons)
+        if conditions:
+            stmt = stmt.where(*conditions)
+
+        result = self._connection.execute(stmt)
         (count,) = result.fetchone()
         return int(count)
 
@@ -58,27 +65,29 @@ class PersonRepository:
         order_by: str,
         descending: bool,
     ) -> Iterable[dict[str, Any]]:
-        str_where = self._build_conditions_str(criteria)
+        conditions = self._build_conditions_str(criteria)
         offset = page_size * (page - 1)
-        order_by_stmt = f"{order_by} {'DESC' if descending else 'ASC'}"
+        order_column = getattr(persons.c, order_by)
+        order_clause = order_column.desc() if descending else order_column.asc()
+
         stmt = (
-            select(text(PERSONS_LIST_COLUMNS))
-            .select_from(persons)
-            .where(text(str_where))
+            select(persons)
+            .where(*conditions)
+            .order_by(order_clause)
             .limit(page_size)
             .offset(offset)
-            .order_by(text((order_by_stmt)))
         )
-        for record in self._connection.execute(stmt, criteria):
+
+        for record in self._connection.execute(stmt):
             yield record._asdict()
 
     def _build_conditions_str(self, criteria: dict[str, str | int | None]) -> str:
-        conditions = []
-        for key, value in criteria.items():
-            if value is None:
-                continue
-            conditions.append(f"{key} =: {key}")
-        return " AND ".join(conditions)
+        conditions = [
+            getattr(persons.c, key) == value
+            for key, value in criteria.items()
+            if value is not None
+        ]
+        return conditions
 
     def upsert_person(self, person_model) -> str:
         now = datetime.now()

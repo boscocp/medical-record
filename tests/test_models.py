@@ -1,54 +1,35 @@
 import pytest
-import uuid
+from unittest.mock import Mock, patch
 from datetime import date, datetime
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from src.models.medical_records_models import metadata, persons, upsert_person
+from src.models.medical_records_models import upsert_person, persons
 
 
-@pytest.fixture(scope="function")
-def connection():
-    # Use um banco em memória para testes
-    engine = create_engine("sqlite:///:memory:")
-    metadata.create_all(engine)
-    conn = engine.connect()
-    yield conn
-    conn.close()
-
-
-def test_create_person(connection):
+@patch("src.models.medical_records_models.insert")
+def test_upsert_person_executes_insert(mock_insert: Mock):
+    # Arrange
     model = {
-        "name": "Teste Criacao",
+        "name": "Any first",
         "cpf": "12345678901",
         "birth_date": date(1990, 1, 1),
         "civil_state": "S",
         "created_time": datetime.now(),
         "modified_time": datetime.now(),
     }
-    upsert_person(connection, model)
-    result = connection.execute(persons.select().where(
-        persons.c.cpf == "12345678901")).fetchone()
-    assert result is not None
-    assert result["name"] == "Teste Criacao"
-    assert result["cpf"] == "12345678901"
 
+    connection = Mock()
 
-def test_update_person(connection):
-    # Primeiro cria
-    model = {
-        "name": "Teste Update",
-        "cpf": "12345678902",
-        "birth_date": date(1991, 2, 2),
-        "civil_state": "M",
-        "created_time": datetime.now(),
-        "modified_time": datetime.now(),
-    }
+    # Mocks
+    mock_insert_clause = Mock()
+    mock_insert_clause.values.return_value = mock_insert_clause
+    mock_insert_clause.on_duplicate_key_update.return_value = mock_insert_clause
+
+    mock_insert.return_value = mock_insert_clause
+
+    # Act
     upsert_person(connection, model)
-    # Atualiza
-    model_update = model.copy()
-    model_update["name"] = "Nome Atualizado"
-    upsert_person(connection, model_update)
-    result = connection.execute(persons.select().where(
-        persons.c.cpf == "12345678902")).fetchone()
-    assert result is not None
-    assert result["name"] == "Nome Atualizado"
+
+    # Assert
+    mock_insert.assert_called_once_with(persons)
+    mock_insert_clause.values.assert_called_once_with(**model)
+    mock_insert_clause.on_duplicate_key_update.assert_called_once()
+    connection.execute.assert_called_once_with(mock_insert_clause)

@@ -16,6 +16,7 @@ class ListPersonsResponse:
 @dataclass
 class ListPersonsRequest:
     cpf: str
+    name: str
     birth_date: str
     civil_state: str
     page: int
@@ -27,6 +28,7 @@ class ListPersonsRequest:
     def criteria(self) -> dict[str, str | int | None]:
         return {
             "cpf": self.cpf,
+            "name": self.name,
             "civil_state": self.civil_state,
             "birth_date": self.birth_date,
         }
@@ -38,11 +40,11 @@ def list_persons(request: ListPersonsRequest, connection: Connection) -> ListPer
     data: Iterable[dict[str, Any]] = []
     if count > 0:
         data = repository.find_paginated(
-            request.criteria,
-            request.page,
-            request.page_size,
-            request.order_by,
-            request.descending,
+            criteria=request.criteria,
+            page=request.page,
+            page_size=request.page_size,
+            order_by=request.order_by,
+            descending=request.descending,
         )
     return ListPersonsResponse(count, list(data))
 
