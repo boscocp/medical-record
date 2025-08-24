@@ -23,3 +23,14 @@ connect database:
 mysql -u localadmin -p -h 127.0.0.1 -P 3306 medical_record
 
 SELECT \* FROM person LIMIT 10;
+
+Payload example
+
+```json
+{
+  "name": "João da Silva",
+  "cpf": "12345678901",
+  "civil_state": "S",
+  "birth_date": "1990-05-15"
+}
+```

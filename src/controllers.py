@@ -4,6 +4,7 @@ from typing import Any
 
 from sqlalchemy import Connection
 
+from src.models import medical_records_models
 from src.repositories import PersonRepository
 
 
@@ -57,12 +58,10 @@ class UpsertPersonResponse:
 
 
 def upsert_person(person_model, connection) -> UpsertPersonResponse:
-    repository = PersonRepository(connection)
-
     if hasattr(person_model, "dict"):
         person_dict = person_model.dict()
     else:
         person_dict = dict(person_model)
-    id = repository.upsert_person(person_dict)
+    id = medical_records_models.upsert_person(connection, person_dict)
 
     return UpsertPersonResponse(id=id)
