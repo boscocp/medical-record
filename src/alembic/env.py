@@ -5,9 +5,11 @@ from sqlalchemy import Engine, engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+
 # Adicione todos os modelos aqui
 from src.models.medical_records_models import metadata as models_metadata
 from src.db.database import create_db_engine
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -74,9 +76,7 @@ def run_migrations_online() -> None:
     connectable = _create_engine()
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

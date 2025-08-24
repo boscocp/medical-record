@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 from datetime import datetime
 from typing import Any
-from sqlalchemy import Connection, select, text, func
+from sqlalchemy import Connection, select, func
 from sqlalchemy.dialects.mysql import insert
 from src.models.medical_records_models import persons
 

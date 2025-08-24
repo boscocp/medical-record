@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from enum import Enum
 from typing import Annotated, Any
-from fastapi import FastAPI, Path, Query, status
+from fastapi import FastAPI, Query, status
 from pydantic import BaseModel
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,7 +52,9 @@ class PaginatedPersons(BaseModel):
     data: list[Person]
 
     @classmethod
-    def from_dict(cls, *, meta: dict[str, Any], data: list[dict[str, Any]]) -> "PaginatedPersons":
+    def from_dict(
+        cls, *, meta: dict[str, Any], data: list[dict[str, Any]]
+    ) -> "PaginatedPersons":
         meta_ = PaginatedPersonsMeta(**meta)
         data_ = list(map(lambda record: Person(**record), data))
         return cls(meta=meta_, data=data_)
@@ -98,7 +100,7 @@ def list_persons(
             "page": page,
             "page_size": page_size,
         },
-        data=response.data
+        data=response.data,
     )
 
 

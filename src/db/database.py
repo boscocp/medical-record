@@ -1,7 +1,7 @@
 import os
-import MySQLdb
-import MySQLdb.connections
-import MySQLdb.converters
+import MySQLdb  # noqa: F401
+import MySQLdb.connections  # noqa: F401
+import MySQLdb.converters  # noqa: F401
 
 from sqlalchemy import Engine, create_engine
 
@@ -10,7 +10,8 @@ DB_POOL_SIZE = 1
 DB_POOL_RECYCLE = 3_600
 DB_DEBUG_MODE = True
 db_conn_string = os.getenv(
-    "DATABASE_URL", "mysql://localadmin:localadmin@database:3306/medical_record")
+    "DATABASE_URL", "mysql://localadmin:localadmin@database:3306/medical_record"
+)
 
 _engine = create_engine(
     db_conn_string,
@@ -23,7 +24,7 @@ _engine = create_engine(
 
 
 def create_db_engine() -> Engine:
-    """ It creates sqlalchemy engine instance.
+    """It creates sqlalchemy engine instance.
     Returns
     -------
     Engine

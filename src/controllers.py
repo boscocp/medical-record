@@ -34,7 +34,9 @@ class ListPersonsRequest:
         }
 
 
-def list_persons(request: ListPersonsRequest, connection: Connection) -> ListPersonsResponse:
+def list_persons(
+    request: ListPersonsRequest, connection: Connection
+) -> ListPersonsResponse:
     repository = PersonRepository(connection)
     count = repository.count_by(request.criteria)
     data: Iterable[dict[str, Any]] = []
@@ -47,8 +49,6 @@ def list_persons(request: ListPersonsRequest, connection: Connection) -> ListPer
             descending=request.descending,
         )
     return ListPersonsResponse(count, list(data))
-
-# ...existing code...
 
 
 @dataclass

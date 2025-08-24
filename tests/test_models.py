@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import Mock, patch
 from datetime import date, datetime
 from src.models.medical_records_models import upsert_person, persons
